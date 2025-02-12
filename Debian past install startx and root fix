@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Identifiziere den aktiven Display Manager
+DISPLAY_MANAGER=$(systemctl status display-manager | grep "Active:" | awk '{print $2}' | cut -d '(' -f 2 | cut -d ')' -f 1)
+
+# Deaktiviere den Display Manager
+sudo systemctl disable $DISPLAY_MANAGER
+
+# Konfiguriere den Runlevel
+sudo ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
+
+# Deaktiviere die Root-Anmeldung über SSH
+sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+
+# Starte den SSH-Dienst neu, um die Änderungen zu übernehmen
+sudo systemctl restart ssh
+
+# Starte das System neu (optional, kann auch manuell erfolgen)
+# sudo reboot
+
+echo "Der Display Manager wurde deaktiviert und die Root-Anmeldung über SSH ist nicht mehr möglich. Starte die GUI mit 'startx'."
